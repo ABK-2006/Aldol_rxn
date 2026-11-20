@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>กลไก aldol: benzaldehyde + acetone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1EC; --stage:#FBFCFA; --ink:#1D2420; --muted:#626C66; --line:#D3D9D2;
+  --oxy:#C23B2A; --arrow:#2453D0; --add:#16806A; --cond:#B0600A;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111513; --stage:#191E1B; --ink:#E4E9E5; --muted:#9AA49E; --line:#2E3631;
+    --oxy:#F07A68; --arrow:#86A5FF; --add:#4FCBAA; --cond:#F0A24E; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111513; --stage:#191E1B; --ink:#E4E9E5; --muted:#9AA49E; --line:#2E3631;
+  --oxy:#F07A68; --arrow:#86A5FF; --add:#4FCBAA; --cond:#F0A24E; color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Anuphan","Noto Sans Thai","Leelawadee UI",Tahoma,system-ui,sans-serif;font-size:16px;line-height:1.65}
+main{max-width:1180px;margin:0 auto;padding:28px 20px 48px}
+h1{font-size:clamp(1.55rem,3.2vw,2.2rem);line-height:1.2;margin:0 0 6px;font-weight:700}
+.lede{color:var(--muted);margin:0 0 18px;max-width:74ch}
+.options{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;margin:0 0 18px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--stage)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{padding:6px 14px;border-radius:7px;cursor:pointer;font-weight:500;font-size:.95rem}
+.seg input:checked+label{background:var(--ink);color:var(--stage)}
+.seg input:focus-visible+label{outline:2px solid var(--arrow);outline-offset:2px}
+.optlbl{font-weight:600;margin-right:8px}
+.chk{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.chk input{accent-color:var(--arrow);width:18px;height:18px}
+.chk small{color:var(--muted);font-weight:400;font-size:.88rem}
+.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:20px;align-items:start}
+.card{background:var(--stage);border:1px solid var(--line);border-radius:14px}
+.stage-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px 0}
+#mol{display:block;width:100%;height:auto;aspect-ratio:760/440}
+.phase{font-weight:600;font-size:.9rem;padding:3px 10px;border-radius:999px;border:1.5px solid currentColor}
+.phase.add1,.phase.add2{color:var(--add)} .phase.cond1,.phase.cond2{color:var(--cond)}
+.mech-tag{font-size:.88rem;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+button{font:inherit;font-weight:500;font-size:.95rem;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink)}
+button.primary{background:var(--ink);color:var(--stage);border-color:var(--ink)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--arrow);outline-offset:2px}
+.toggle{display:flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);margin-left:auto}
+.toggle input{accent-color:var(--arrow);width:16px;height:16px}
+.counter{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.side{padding:18px 20px}
+.side h2{font-size:1.25rem;margin:0 0 4px;line-height:1.3}
+.side .what{margin:0 0 12px}
+.side .next{margin:0;padding:12px 14px;border-left:3px solid var(--arrow);background:color-mix(in srgb,var(--arrow) 7%,transparent);border-radius:0 8px 8px 0}
+.side .next b{color:var(--arrow);font-weight:600}
+.side .hint{margin:10px 0 0;color:var(--muted);font-size:.9rem}
+.steps{margin-top:20px;padding:14px 16px;max-height:520px;overflow-y:auto}
+.steps h3{font-size:.98rem;margin:8px 4px 4px;font-weight:600}
+.steps h3:first-child{margin-top:0}
+.steps h3.add1,.steps h3.add2{color:var(--add)} .steps h3.cond1,.steps h3.cond2{color:var(--cond)}
+.steps ol{margin:0;padding:0;list-style:none}
+.steps li button{width:100%;text-align:left;border:0;border-radius:8px;padding:5px 10px;display:flex;gap:10px;align-items:baseline;font-size:.93rem}
+.steps li button .n{color:var(--muted);font-variant-numeric:tabular-nums;min-width:1.4em}
+.steps li button[aria-current="step"]{background:var(--bg);font-weight:600}
+.energy{margin-top:20px;padding:16px 20px}
+.energy h2,.why h2{font-size:1.1rem;margin:0 0 2px}
+.energy p.cap{margin:0 0 6px;color:var(--muted);font-size:.9rem}
+#eng{display:block;width:100%;height:auto;aspect-ratio:1100/240}
+.why{margin-top:20px;padding:18px 20px}
+.why .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 28px;margin-top:10px}
+.why h3{font-size:1rem;margin:0 0 4px}
+.why p{margin:0;color:var(--muted)}
+/* svg */
+.bond{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+.ring{stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linejoin:round}
+.lbg{fill:var(--stage)}
+.atom{font-family:"Anuphan",Tahoma,sans-serif;font-size:21px;font-weight:600;dominant-baseline:central}
+.atom.C{fill:var(--ink)} .atom.O{fill:var(--oxy)} .atom.H{fill:var(--muted);font-weight:500}
+.chg{fill:var(--stage);stroke:var(--oxy);stroke-width:1.5}
+.chgm{stroke:var(--oxy);stroke-width:1.8}
+.lp{fill:var(--oxy)}
+.arw{stroke:var(--arrow);stroke-width:2.2;fill:none;stroke-linecap:round}
+.ahead{fill:var(--arrow)}
+.edot{fill:var(--arrow)}
+.name{font-family:"Anuphan",Tahoma,sans-serif;font-size:15px;fill:var(--muted);text-anchor:middle}
+.name.em{fill:var(--ink);font-weight:600}
+.eline{fill:none;stroke:var(--ink);stroke-width:2}
+.eaxis{stroke:var(--line);stroke-width:1.5}
+.elab{font-family:"Anuphan",Tahoma,sans-serif;font-size:14px;fill:var(--muted);text-anchor:middle}
+.elab.on{fill:var(--ink);font-weight:600;font-size:15px}
+.etick{fill:var(--muted)}
+.emark{fill:var(--arrow)}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.why .cols{grid-template-columns:1fr}.steps{max-height:none}}
+@media (max-width:560px){.toggle{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<main>
+  <h1>กลไก aldol ระหว่าง benzaldehyde กับ acetone</h1>
+  <p class="lede">Crossed aldol (Claisen–Schmidt) ทีละขั้น ลูกศรสีน้ำเงินคือการเคลื่อนที่ของคู่อิเล็กตรอน กด “ถัดไป” เพื่อดูอิเล็กตรอนไหลตามลูกศร แล้วพันธะจึงขาดและเกิดใหม่</p>
+
+  <div class="options">
+    <div><span class="optlbl" id="mLbl">ตัวเร่ง</span>
+      <span class="seg" role="radiogroup" aria-labelledby="mLbl">
+        <input type="radio" name="mech" id="mBase" value="base" checked><label for="mBase">เบส OH⁻ (ผ่าน enolate)</label>
+        <input type="radio" name="mech" id="mAcid" value="acid"><label for="mAcid">กรด H₃O⁺ (ผ่าน enol)</label>
+      </span>
+    </div>
+    <label class="chk"><input type="checkbox" id="cDba"> ต่อรอบที่ 2 จนได้ dibenzylideneacetone <small>(ใช้ benzaldehyde 2 เท่าโมล)</small></label>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="stage-head">
+        <span id="phase" class="phase add1">Aldol addition</span>
+        <span id="mechTag" class="mech-tag">เร่งด้วยเบส</span>
+      </div>
+      <svg id="mol" viewBox="0 0 760 440" role="img" aria-labelledby="stTitle"></svg>
+      <div class="controls">
+        <button id="bPrev" type="button">ก่อนหน้า</button>
+        <button id="bNext" type="button" class="primary">ถัดไป</button>
+        <button id="bPlay" type="button">เล่นต่อเนื่อง</button>
+        <button id="bReset" type="button">เริ่มใหม่</button>
+        <span class="counter" id="counter"></span>
+        <label class="toggle"><input type="checkbox" id="cLp" checked> แสดงคู่อิเล็กตรอนโดดเดี่ยว</label>
+      </div>
+    </div>
+
+    <div>
+      <section class="card side" aria-live="polite">
+        <h2 id="stTitle">–</h2>
+        <p class="what" id="stWhat">–</p>
+        <p class="next" id="stNext">–</p>
+        <p class="hint" id="stHint" hidden></p>
+      </section>
+      <nav class="card steps" aria-label="ลำดับขั้น" id="steps"></nav>
+    </div>
+  </div>
+
+  <section class="card energy" aria-labelledby="hE">
+    <h2 id="hE">แผนภาพพลังงานของปฏิกิริยา</h2>
+    <p class="cap">เชิงคุณภาพ แสดงแนวโน้มขึ้นลงเท่านั้น ไม่ใช่ค่าที่วัดจริง จุดสีน้ำเงินคือขั้นที่กำลังดูอยู่</p>
+    <svg id="eng" viewBox="0 0 1100 240" role="img" aria-label="แผนภาพพลังงานเชิงคุณภาพของแต่ละขั้น"></svg>
+  </section>
+
+  <section class="card why" aria-labelledby="hW">
+    <h2 id="hW">ประเด็นสำคัญ</h2>
+    <div class="cols">
+      <div><h3>benzaldehyde ไม่มี α-H</h3><p>จึงเกิด enolate หรือ enol ไม่ได้ ทำได้แค่เป็นตัวรับ nucleophile ส่วน acetone เป็นตัวเดียวที่เป็น nucleophile ได้ ผลิตภัณฑ์จึงไม่ปนกันหลายชนิด</p></div>
+      <div><h3>aldehyde ไวกว่า ketone</h3><p>คาร์บอนของ C=O ใน benzaldehyde เกะกะน้อยกว่าและรับ nucleophile ได้ดีกว่า acetone จึงเกิด crossed aldol มากกว่าการที่ acetone ทำปฏิกิริยากับตัวเอง</p></div>
+      <div><h3>เบสกับกรดต่างกันอย่างไร</h3><p>ในเบส nucleophile คือ enolate ซึ่งแรง และหมู่ที่หลุดตอนขจัดคือ OH⁻ (กลไก E1cB) ในกรด nucleophile คือ enol ซึ่งอ่อนกว่า จึงต้องกระตุ้น C=O ด้วยโปรตอนก่อน และหมู่ที่หลุดคือน้ำ ซึ่งหลุดได้ง่ายกว่ามาก</p></div>
+      <div><h3>ทำไมได้ dba เมื่อใช้ benzaldehyde มากพอ</h3><p>benzalacetone ยังมีหมู่ CH₃ ที่มี α-H อีกข้าง ปฏิกิริยาจึงเกิดซ้ำด้วยกลไกเดิมทุกขั้น ได้ dibenzylideneacetone ซึ่งตกตะกอนเป็นของแข็งสีเหลือง ช่วยดึงปฏิกิริยาไปข้างหน้า</p></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+// ================= atoms =================
+const ATOMS = {
+  C1:{t:'H₃C',el:'C',anchor:'end',dx:7,r:[22,9]},
+  C2:{t:'C',el:'C',r:[10,10]},
+  O2:{t:'O',el:'O',r:[11,11]},
+  C3:{t:'CH',el:'C',anchor:'start',dx:-7,r:[10,10]},
+  C4:{t:'CH',el:'C',anchor:'start',dx:-7,r:[10,10]},
+  O4:{t:'O',el:'O',r:[11,11]},
+  C5:{t:'HC',el:'C',anchor:'end',dx:7,r:[10,10]},
+  O5:{t:'O',el:'O',r:[11,11]},
+  Ph:{ring:'C4'}, Ph2:{ring:'C5'},
+  Ha:{t:'H',el:'H',r:[9,9]}, Hb:{t:'H',el:'H',r:[9,9]}, Hc:{t:'H',el:'H',r:[9,9]}, Hd:{t:'H',el:'H',r:[9,9]},
+  Oh:{t:'O',el:'O',r:[11,11]}, Hh:{t:'H',el:'H',r:[9,9]},
+  Ow:{t:'O',el:'O',r:[11,11]}, Hp:{t:'H',el:'H',r:[9,9]}, Hw1:{t:'H',el:'H',r:[9,9]}, Hw2:{t:'H',el:'H',r:[9,9]},
+};
+const RING_R=28;
+const def=(st,id)=>st.lab&&st.lab[id]?Object.assign({},ATOMS[id],st.lab[id]):ATOMS[id];
+const M=(...o)=>Object.assign({},...o);
+
+// ================= geometry blocks =================
+const acet0={C1:[170,240],C2:[220,210],O2:[220,150],C3:[272,240],Ha:[250,296],Hb:[300,296]};
+const bz0={C4:[600,210],O4:[600,150],Ph:[665,247]};
+const bz1={C4:[380,200],O4:[380,140],Ph:[445,237]};
+const skel={C1:[200,240],C2:[250,210],O2:[250,150],C3:[302,240],Hb:[302,300],C4:[354,210],O4:[354,150],Ph:[419,247]};
+const B=(a,b,o=1)=>[a,b,o];
+
+// ================= base, round 1 =================
+const BASE=[
+ {title:'สารตั้งต้น',phase:'add1',E:0,sl:'สารตั้งต้น',key:1,
+  what:'acetone มี α-H (H บนคาร์บอนข้าง C=O) ซึ่งเป็นกรดอ่อน pKa ≈ 19–20 ส่วน benzaldehyde ไม่มี α-H และ OH⁻ ทำหน้าที่เป็นเบส',
+  next:'<b>ขั้นที่ 1 การเกิด enolate</b> OH⁻ ใช้คู่อิเล็กตรอนดึง α-H อิเล็กตรอนจากพันธะ C–H ย้ายไปสร้าง C=C และอิเล็กตรอน π ของ C=O ย้ายไปอยู่บน O',
+  pos:M(acet0,bz0,{Oh:[205,372],Hh:[165,394]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Ha'),B('C3','Hb'),B('Oh','Hh'),B('C4','O4',2),B('C4','Ph')],
+  chg:{Oh:-1},
+  arrows:[{from:{lp:'Oh',to:'Ha'},to:{atom:'Ha'},bend:-0.35},{from:{bond:['C3','Ha']},to:{bond:['C2','C3']},bend:0.9},{from:{bond:['C2','O2']},to:{atom:'O2'},bend:-1.1}],
+  names:[{t:'acetone',x:220,y:100},{t:'benzaldehyde',x:625,y:100},{t:'ไฮดรอกไซด์ (เบส)',x:185,y:428}]},
+ {title:'enolate ion',phase:'add1',E:11,sl:'enolate',
+  what:'ได้ enolate ซึ่งประจุลบกระจายอยู่ระหว่าง O กับ α-carbon (resonance) สมดุลขั้นนี้อยู่ทางซ้าย เพราะน้ำ (pKa 15.7) เป็นกรดแรงกว่า acetone จึงมี enolate อยู่เพียงเล็กน้อยตลอดเวลา แต่ก็พอให้ปฏิกิริยาเดินหน้า',
+  next:'<b>ขั้นที่ 2 การเกิดพันธะ C–C</b> α-carbon ของ enolate (nucleophile) เข้าทำปฏิกิริยากับคาร์บอนของ C=O ใน benzaldehyde (electrophile) อิเล็กตรอน π ของ C=O ย้ายไปที่ O',
+  pos:M(acet0,bz1,{Ha:[232,338],Oh:[205,372],Hh:[165,394]}),
+  bonds:[B('C1','C2'),B('C2','O2'),B('C2','C3',2),B('C3','Hb'),B('Oh','Hh'),B('Oh','Ha'),B('C4','O4',2),B('C4','Ph')],
+  chg:{O2:-1},
+  arrows:[{from:{lp:'O2',ang:180},to:{bond:['C2','O2']},bend:0.7},{from:{bond:['C2','C3']},to:{atom:'C4'},bend:-0.5},{from:{bond:['C4','O4']},to:{atom:'O4'},bend:-1.1}],
+  names:[{t:'enolate ion',x:200,y:100},{t:'น้ำ',x:170,y:428},{t:'benzaldehyde',x:410,y:92}]},
+ {title:'alkoxide intermediate',phase:'add1',E:6,sl:'alkoxide',
+  what:'เกิดพันธะ C–C ใหม่แล้ว คาร์บอนของ benzaldehyde เปลี่ยนจาก sp² เป็น sp³ และ O กลายเป็น alkoxide ที่มีประจุลบ ซึ่งเป็นเบสแรงกว่า OH⁻',
+  next:'<b>ขั้นที่ 3 โปรตอนเนชัน</b> alkoxide ใช้คู่อิเล็กตรอนดึง H จากน้ำ อิเล็กตรอนของพันธะ O–H ในน้ำย้ายกลับไปที่ O ได้ OH⁻ คืนมา',
+  pos:M(skel,{Oh:[470,105],Hh:[500,78],Ha:[428,124]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('C4','Ph'),B('Oh','Hh'),B('Oh','Ha')],
+  chg:{O4:-1},
+  arrows:[{from:{lp:'O4',to:'Ha'},to:{atom:'Ha'},bend:0.45},{from:{bond:['Oh','Ha']},to:{atom:'Oh'},bend:0.9}],
+  names:[{t:'alkoxide',x:300,y:370},{t:'น้ำ',x:490,y:48}]},
+ {title:'ผลิตภัณฑ์ aldol addition',phase:'add1',E:-3,sl:'aldol',key:1,
+  what:'ได้ β-hydroxy ketone ชื่อ 4-hydroxy-4-phenylbutan-2-one และ OH⁻ ถูกคืนกลับ จึงเป็นตัวเร่งปฏิกิริยา ถ้าทำที่อุณหภูมิต่ำ ปฏิกิริยาอาจหยุดที่ขั้นนี้',
+  next:'<b>ถ้าให้ความร้อน</b> ปฏิกิริยาจะเดินต่อไปเป็น aldol condensation โดยเสียน้ำหนึ่งโมเลกุล กด “ถัดไป” เพื่อดูต่อ',
+  pos:M(skel,{Ha:[388,124],Oh:[482,96],Hh:[514,72]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('C4','Ph'),B('O4','Ha'),B('Oh','Hh')],
+  chg:{Oh:-1}, arrows:[],
+  names:[{t:'4-hydroxy-4-phenylbutan-2-one',x:300,y:370,em:true},{t:'β-hydroxy ketone (aldol)',x:300,y:394},{t:'OH⁻ คืนกลับ',x:500,y:44}]},
+ {title:'เริ่ม condensation',phase:'cond1',same:1,
+  what:'H บน α-carbon ที่อยู่ระหว่าง C=O กับคาร์บอนที่มี OH เป็นกรดอีกครั้ง OH⁻ เข้ามาใกล้ H ตัวนั้น',
+  next:'<b>ขั้นที่ 4 การเกิด enolate อีกครั้ง</b> OH⁻ ดึง α-H อิเล็กตรอนจากพันธะ C–H สร้าง C=C และอิเล็กตรอน π ของ C=O ย้ายไปที่ O',
+  pos:M(skel,{Ha:[388,124],Oh:[350,368],Hh:[392,388]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('C4','Ph'),B('O4','Ha'),B('Oh','Hh')],
+  chg:{Oh:-1},
+  arrows:[{from:{lp:'Oh',to:'Hb'},to:{atom:'Hb'},bend:-0.4},{from:{bond:['C3','Hb']},to:{bond:['C2','C3']},bend:0.9},{from:{bond:['C2','O2']},to:{atom:'O2'},bend:-1.1}],
+  names:[{t:'β-hydroxy ketone + OH⁻ (ให้ความร้อน)',x:300,y:84}]},
+ {title:'enolate ของ aldol',phase:'cond1',E:9,sl:'enolate',
+  what:'ได้ enolate ที่มีหมู่ OH อยู่บน β-carbon ตำแหน่งนี้พร้อมสำหรับการขจัด',
+  next:'<b>ขั้นที่ 5 การขจัดแบบ E1cB</b> คู่อิเล็กตรอนบน O⁻ สร้าง C=O กลับคืน อิเล็กตรอนของ C=C ย้ายไปสร้าง C=C ใหม่ระหว่าง α- กับ β-carbon และผลัก OH⁻ ออกไป',
+  pos:M(skel,{Ha:[388,124],Hb:[318,338],Oh:[352,372],Hh:[394,392]}),
+  bonds:[B('C1','C2'),B('C2','O2'),B('C2','C3',2),B('C3','C4'),B('C4','O4'),B('C4','Ph'),B('O4','Ha'),B('Oh','Hb'),B('Oh','Hh')],
+  chg:{O2:-1},
+  arrows:[{from:{lp:'O2',ang:180},to:{bond:['C2','O2']},bend:0.7},{from:{bond:['C2','C3']},to:{bond:['C3','C4']},bend:-0.9},{from:{bond:['C4','O4']},to:{atom:'O4'},bend:-1.1}],
+  names:[{t:'enolate ของ aldol',x:300,y:84}]},
+ {title:'ผลิตภัณฑ์ aldol condensation',phase:'cond1',E:-10,sl:'enone',key:1,
+  what:'ได้ (E)-4-phenylbut-3-en-2-one (benzalacetone) ซึ่งเป็น α,β-unsaturated ketone ที่ conjugate ตลอดจากวงเบนซีนถึง C=O พร้อมน้ำและ OH⁻ ที่คืนกลับ ได้ไอโซเมอร์ E เป็นหลักเพราะหมู่ phenyl กับ acetyl อยู่คนละฝั่ง ไม่เบียดกัน',
+  next:'<b>ปกติ OH⁻ เป็นหมู่ออกที่ไม่ดี</b> แต่ใน E1cB มันหลุดจาก carbanion ที่มีพลังงานสูงอยู่แล้ว และผลิตภัณฑ์ที่ conjugate เสถียรมาก ปฏิกิริยาจึงเกิดได้',
+  pos:M(skel,{O4:[422,104],Ha:[457,84],Hb:[318,338],Oh:[352,372],Hh:[394,392]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','C4',2),B('C4','Ph'),B('O4','Ha'),B('Oh','Hb'),B('Oh','Hh')],
+  chg:{O4:-1}, arrows:[],
+  names:[{t:'(E)-4-phenylbut-3-en-2-one',x:250,y:70,em:true},{t:'benzalacetone',x:250,y:94},{t:'น้ำ',x:420,y:420}]},
+];
+
+// ================= acid, round 1 =================
+const H3O_top={Ow:[195,58],Hw1:[158,42],Hw2:[200,16]};
+const ACID=[
+ {title:'สารตั้งต้น',phase:'add1',E:0,sl:'สารตั้งต้น',key:1,
+  what:'acetone, benzaldehyde และกรด H₃O⁺ (เช่นจาก HCl หรือ H₂SO₄) ในสภาวะกรด α-H ไม่ถูกดึงออกตรง ๆ แต่ acetone ต้องเปลี่ยนเป็น enol ก่อน',
+  next:'<b>ขั้นที่ 1 โปรตอนเนชันของ C=O</b> O ของ acetone ใช้คู่อิเล็กตรอนดึง H⁺ จาก H₃O⁺ อิเล็กตรอนของพันธะ O–H ใน H₃O⁺ กลับไปอยู่ที่ O ของน้ำ',
+  pos:M(acet0,bz0,{Ow:[130,105],Hp:[172,122],Hw1:[98,78],Hw2:[100,135]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Ha'),B('C3','Hb'),B('C4','O4',2),B('C4','Ph'),B('Ow','Hp'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{Ow:1},
+  arrows:[{from:{lp:'O2',to:'Hp'},to:{atom:'Hp'},bend:0.4},{from:{bond:['Ow','Hp']},to:{atom:'Ow'},bend:0.9}],
+  names:[{t:'acetone',x:275,y:340},{t:'benzaldehyde',x:625,y:100},{t:'H₃O⁺',x:135,y:40}]},
+ {title:'acetone ที่ถูกโปรตอนเนต',phase:'add1',E:5,sl:'C=OH⁺',
+  what:'O มีประจุบวก และประจุบวกกระจายไปที่คาร์บอนของ C=O ด้วย (resonance) ทำให้ α-H เป็นกรดมากขึ้นมาก',
+  next:'<b>ขั้นที่ 2 การเกิด enol</b> น้ำ (เบสอ่อน) ดึง α-H อิเล็กตรอนจากพันธะ C–H สร้าง C=C และอิเล็กตรอน π ของ C=O ย้ายไปลบประจุบวกบน O',
+  pos:M(acet0,bz0,{Hp:[188,122],Ow:[222,368],Hw1:[182,390],Hw2:[228,410]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('O2','Hp'),B('C2','C3'),B('C3','Ha'),B('C3','Hb'),B('C4','O4',2),B('C4','Ph'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{O2:1},
+  arrows:[{from:{lp:'Ow',to:'Ha'},to:{atom:'Ha'},bend:-0.35},{from:{bond:['C3','Ha']},to:{bond:['C2','C3']},bend:0.9},{from:{bond:['C2','O2']},to:{atom:'O2'},bend:-1.1}],
+  names:[{t:'acetone ที่ถูกโปรตอนเนต',x:330,y:110},{t:'น้ำ',x:150,y:428},{t:'benzaldehyde',x:625,y:100}]},
+ {title:'enol',phase:'add1',E:9,sl:'enol',
+  what:'ได้ enol ซึ่งเป็น tautomer ของ acetone มีอยู่น้อยมากที่สมดุล คู่อิเล็กตรอนบน O ผลักเข้าสู่ C=C ทำให้ α-carbon มีอิเล็กตรอนหนาแน่นและเป็น nucleophile ได้ แต่อ่อนกว่า enolate มาก',
+  next:'<b>ขั้นที่ 3 กระตุ้น benzaldehyde</b> O ของ benzaldehyde ดึง H⁺ จาก H₃O⁺ ทำให้คาร์บอนของ C=O เป็น electrophile ที่แรงพอให้ enol เข้าทำได้',
+  pos:M(acet0,bz1,{Hp:[188,122],Ow:[478,96],Ha:[436,114],Hw1:[508,70],Hw2:[503,124]}),
+  bonds:[B('C1','C2'),B('C2','O2'),B('O2','Hp'),B('C2','C3',2),B('C3','Hb'),B('C4','O4',2),B('C4','Ph'),B('Ow','Ha'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{Ow:1},
+  arrows:[{from:{lp:'O4',to:'Ha'},to:{atom:'Ha'},bend:0.4},{from:{bond:['Ow','Ha']},to:{atom:'Ow'},bend:0.9}],
+  names:[{t:'enol',x:200,y:340},{t:'benzaldehyde',x:430,y:300},{t:'H₃O⁺',x:500,y:36}]},
+ {title:'enol + benzaldehyde ที่ถูกโปรตอนเนต',phase:'add1',E:12,sl:'C=OH⁺',
+  what:'ตอนนี้มีทั้ง nucleophile (enol) และ electrophile ที่ถูกกระตุ้นแล้ว (benzaldehyde ที่มี O⁺–H)',
+  next:'<b>ขั้นที่ 4 การเกิดพันธะ C–C</b> คู่อิเล็กตรอนบน O ของ enol สร้าง C=O ขึ้นมาใหม่ อิเล็กตรอนของ C=C เข้าทำที่คาร์บอนของ benzaldehyde และอิเล็กตรอน π ของ C=O⁺ ย้ายไปที่ O ได้หมู่ OH',
+  pos:M(acet0,bz1,{Hp:[188,122],Ha:[410,115],Ow:[482,92],Hw1:[512,66],Hw2:[508,120]}),
+  bonds:[B('C1','C2'),B('C2','O2'),B('O2','Hp'),B('C2','C3',2),B('C3','Hb'),B('C4','O4',2),B('O4','Ha'),B('C4','Ph'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{O4:1},
+  arrows:[{from:{lp:'O2',ang:0},to:{bond:['C2','O2']},bend:-0.8},{from:{bond:['C2','C3']},to:{atom:'C4'},bend:-0.5},{from:{bond:['C4','O4']},to:{atom:'O4'},bend:-1.1}],
+  names:[{t:'enol',x:200,y:340},{t:'benzaldehyde ที่ถูกโปรตอนเนต',x:450,y:300},{t:'น้ำ',x:530,y:36}]},
+ {title:'ผลิตภัณฑ์เติมที่ถูกโปรตอนเนต',phase:'add1',E:8,sl:'C=OH⁺',
+  what:'พันธะ C–C ใหม่เกิดแล้ว หมู่ OH อยู่บนคาร์บอนที่มาจาก benzaldehyde และประจุบวกย้ายมาอยู่ที่ O ของ C=O ฝั่ง acetone',
+  next:'<b>ขั้นที่ 5 ดึงโปรตอนออก</b> น้ำดึง H⁺ ออกจาก O ได้ ketone ที่เป็นกลาง และ H₃O⁺ กลับคืนมา',
+  pos:M(skel,H3O_top,{Hp:[226,116],Ha:[384,124]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('O2','Hp'),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('O4','Ha'),B('C4','Ph'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{O2:1},
+  arrows:[{from:{lp:'Ow',to:'Hp'},to:{atom:'Hp'},bend:0.4},{from:{bond:['O2','Hp']},to:{atom:'O2'},bend:0.9}],
+  names:[{t:'ผลิตภัณฑ์เติมที่ถูกโปรตอนเนต',x:330,y:370},{t:'น้ำ',x:110,y:40}]},
+ {title:'ผลิตภัณฑ์ aldol addition',phase:'add1',E:-3,sl:'aldol',key:1,
+  what:'ได้ 4-hydroxy-4-phenylbutan-2-one เหมือนในเบส และ H₃O⁺ ถูกคืนกลับ ในสภาวะกรด β-hydroxy ketone มักขจัดน้ำต่อได้ง่าย จึงแยกออกมาได้ยากกว่าในเบส',
+  next:'<b>ถ้าให้ความร้อน</b> ปฏิกิริยาจะเดินต่อไปเป็น aldol condensation โดยเสียน้ำหนึ่งโมเลกุล กด “ถัดไป” เพื่อดูต่อ',
+  pos:M(skel,H3O_top,{Hp:[214,94],Ha:[384,124]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('O4','Ha'),B('C4','Ph'),B('Ow','Hp'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{Ow:1}, arrows:[],
+  names:[{t:'4-hydroxy-4-phenylbutan-2-one',x:300,y:370,em:true},{t:'β-hydroxy ketone (aldol)',x:300,y:394},{t:'H₃O⁺ คืนกลับ',x:110,y:100}]},
+ {title:'เริ่ม condensation',phase:'cond1',same:1,
+  what:'ในกรด การขจัดน้ำต้องผ่าน enol อีกครั้ง เริ่มจากกระตุ้น C=O ให้ α-H เป็นกรดมากขึ้น',
+  next:'<b>ขั้นที่ 6 โปรตอนเนชันของ C=O</b> O ของ C=O ดึง H⁺ จาก H₃O⁺',
+  pos:M(skel,H3O_top,{Hp:[214,94],Ha:[384,124]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('O4','Ha'),B('C4','Ph'),B('Ow','Hp'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{Ow:1},
+  arrows:[{from:{lp:'O2',to:'Hp'},to:{atom:'Hp'},bend:0.4},{from:{bond:['Ow','Hp']},to:{atom:'Ow'},bend:0.9}],
+  names:[{t:'β-hydroxy ketone + H₃O⁺ (ให้ความร้อน)',x:330,y:370}]},
+ {title:'aldol ที่ถูกโปรตอนเนต',phase:'cond1',E:2,sl:'C=OH⁺',
+  what:'C=O ถูกโปรตอนเนตแล้ว α-H ตัวที่อยู่ระหว่าง C=O กับคาร์บอนที่มี OH จึงเป็นกรดมากขึ้น',
+  next:'<b>ขั้นที่ 7 การเกิด enol</b> น้ำดึง α-H อิเล็กตรอนจากพันธะ C–H สร้าง C=C และอิเล็กตรอน π ของ C=O ย้ายไปลบประจุบวกบน O',
+  pos:M(skel,{Ha:[384,124],Hp:[226,116],Ow:[335,365],Hw1:[377,385],Hw2:[328,407]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('O2','Hp'),B('C2','C3'),B('C3','Hb'),B('C3','C4'),B('C4','O4'),B('O4','Ha'),B('C4','Ph'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{O2:1},
+  arrows:[{from:{lp:'Ow',to:'Hb'},to:{atom:'Hb'},bend:-0.4},{from:{bond:['C3','Hb']},to:{bond:['C2','C3']},bend:0.9},{from:{bond:['C2','O2']},to:{atom:'O2'},bend:-1.1}],
+  names:[{t:'aldol ที่ถูกโปรตอนเนต',x:340,y:84}]},
+ {title:'enol ของ aldol',phase:'cond1',E:7,sl:'enol',
+  what:'OH เป็นหมู่ออกที่ไม่ดี แต่ในกรดเปลี่ยน OH เป็น –OH₂⁺ ได้ ซึ่งหลุดออกเป็นน้ำได้ดีมาก',
+  next:'<b>ขั้นที่ 8 โปรตอนเนชันของหมู่ OH</b> O ของหมู่ OH บน β-carbon ดึง H⁺ จาก H₃O⁺',
+  pos:M(skel,{Ha:[384,124],Hp:[226,116],Hb:[416,176],Ow:[458,166],Hw1:[488,141],Hw2:[484,201]}),
+  bonds:[B('C1','C2'),B('C2','O2'),B('O2','Hp'),B('C2','C3',2),B('C3','C4'),B('C4','O4'),B('O4','Ha'),B('C4','Ph'),B('Ow','Hb'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{Ow:1},
+  arrows:[{from:{lp:'O4',to:'Hb'},to:{atom:'Hb'},bend:0.4},{from:{bond:['Ow','Hb']},to:{atom:'Ow'},bend:0.9}],
+  names:[{t:'enol ของ aldol',x:250,y:340},{t:'H₃O⁺',x:525,y:240}]},
+ {title:'enol ที่มีหมู่ –OH₂⁺',phase:'cond1',E:9,sl:'–OH₂⁺',
+  what:'หมู่ –OH₂⁺ บน β-carbon พร้อมหลุดออกเป็นโมเลกุลน้ำ',
+  next:'<b>ขั้นที่ 9 ขจัดน้ำ</b> คู่อิเล็กตรอนบน O ของ enol สร้าง C=O⁺ อิเล็กตรอนของ C=C ย้ายไปสร้าง C=C ใหม่ระหว่าง α- กับ β-carbon และผลักน้ำออก',
+  pos:M(skel,{Ha:[384,124],Hp:[226,116],Hb:[392,168],Ow:[470,150],Hw1:[500,125],Hw2:[496,185]}),
+  bonds:[B('C1','C2'),B('C2','O2'),B('O2','Hp'),B('C2','C3',2),B('C3','C4'),B('C4','O4'),B('O4','Ha'),B('O4','Hb'),B('C4','Ph'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{O4:1},
+  arrows:[{from:{lp:'O2',ang:0},to:{bond:['C2','O2']},bend:-0.8},{from:{bond:['C2','C3']},to:{bond:['C3','C4']},bend:-0.9},{from:{bond:['C4','O4']},to:{atom:'O4'},bend:-1.1}],
+  names:[{t:'มีหมู่ –OH₂⁺ บน β-carbon',x:300,y:340}]},
+ {title:'enone ที่ถูกโปรตอนเนต',phase:'cond1',E:1,sl:'C=OH⁺',
+  what:'น้ำหลุดออกไปแล้ว เกิด C=C ใหม่ที่ conjugate กับวงเบนซีน ประจุบวกอยู่ที่ O ของ C=O',
+  next:'<b>ขั้นที่ 10 ดึงโปรตอนออก</b> น้ำดึง H⁺ จาก O ได้ enone ที่เป็นกลาง และ H₃O⁺ คืนกลับ',
+  pos:M(skel,H3O_top,{Hp:[226,116],O4:[430,96],Ha:[462,76],Hb:[452,128]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('O2','Hp'),B('C2','C3'),B('C3','C4',2),B('C4','Ph'),B('O4','Ha'),B('O4','Hb'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{O2:1},
+  arrows:[{from:{lp:'Ow',to:'Hp'},to:{atom:'Hp'},bend:0.4},{from:{bond:['O2','Hp']},to:{atom:'O2'},bend:0.9}],
+  names:[{t:'enone ที่ถูกโปรตอนเนต',x:300,y:330},{t:'น้ำ',x:500,y:130}]},
+ {title:'ผลิตภัณฑ์ aldol condensation',phase:'cond1',E:-10,sl:'enone',key:1,
+  what:'ได้ (E)-4-phenylbut-3-en-2-one (benzalacetone) เหมือนในเบส แต่ผ่าน enol แทน enolate และหมู่ที่หลุดออกคือน้ำแทน OH⁻ ส่วน H₃O⁺ ถูกคืนกลับ',
+  next:'<b>สังเกต</b> ทุกขั้นในกรดเป็นการย้ายโปรตอนสลับกับการย้ายพันธะ ไม่มีสปีชีส์ที่มีประจุลบเลย ต่างจากในเบสที่ไม่มีสปีชีส์ที่มีประจุบวก',
+  pos:M(skel,H3O_top,{Hp:[214,94],O4:[430,96],Ha:[462,76],Hb:[452,128]}),
+  bonds:[B('C1','C2'),B('C2','O2',2),B('C2','C3'),B('C3','C4',2),B('C4','Ph'),B('O4','Ha'),B('O4','Hb'),B('Ow','Hp'),B('Ow','Hw1'),B('Ow','Hw2')],
+  chg:{Ow:1}, arrows:[],
+  names:[{t:'(E)-4-phenylbut-3-en-2-one',x:300,y:330,em:true},{t:'benzalacetone',x:300,y:354},{t:'H₃O⁺ คืนกลับ',x:110,y:100},{t:'น้ำ',x:500,y:130}]},
+];
+
+// ================= round 2 by mirroring =================
+const X0=705;
+const REN={C3:'C1',C4:'C5',O4:'O5',Ph:'Ph2',Ha:'Hd',Hb:'Hc',C1:'C3'};
+const rn=id=>REN[id]||id;
+const fixAcetone=s=>s.replace(/(?<!benzal)acetone/g,'benzalacetone');
+function mirror(st,i,last,ov){
+  const pos={}; for(const k in st.pos){const p=st.pos[k]; pos[rn(k)]=[X0-p[0],p[1]];}
+  pos.C4=[pos.C3[0]+52,pos.C3[1]-30]; pos.Ph=[pos.C4[0]+65,pos.C4[1]+37];
+  const bonds=st.bonds.map(([a,b,o])=>[rn(a),rn(b),o]).concat([B('C3','C4',2),B('C4','Ph')]);
+  const chg={}; for(const k in st.chg) chg[rn(k)]=st.chg[k];
+  const arrows=st.arrows.map(a=>({
+    from:a.from.lp?{lp:rn(a.from.lp),to:a.from.to?rn(a.from.to):undefined,ang:a.from.ang!==undefined?180-a.from.ang:undefined}:{bond:a.from.bond.map(rn)},
+    to:a.to.atom?{atom:rn(a.to.atom)}:{bond:a.to.bond.map(rn)}, bend:-a.bend}));
+  const names=st.names.map((n,j)=>({t:(ov.names&&ov.names[j]!==undefined)?ov.names[j]:fixAcetone(n.t),x:X0-n.x,y:n.y,em:n.em})).filter(n=>n.t);
+  const out={pos,bonds,chg,arrows,names,lab:{C1:{t:'HC',anchor:'end',dx:7,r:[10,10]}},
+    phase:st.phase==='add1'?'add2':'cond2', E:st.E-10, same:st.same, sl:st.sl,
+    title:fixAcetone(st.title), what:fixAcetone(st.what), next:fixAcetone(st.next)};
+  if(i===0){out.same=1;out.fade=1;}
+  if(i===last) out.key=1;
+  return Object.assign(out,ov.o||{});
+}
+const R2BASE={
+  0:{o:{title:'รอบที่ 2: สารตั้งต้น',what:'benzalacetone ยังมีหมู่ CH₃ อีกข้างที่มี α-H เมื่อใช้ benzaldehyde 2 เท่าโมลขึ้นไป ด้านนี้จะเกิด aldol ซ้ำด้วยกลไกเดิมทุกขั้น'},names:['benzalacetone','benzaldehyde โมเลกุลที่ 2']},
+  3:{o:{title:'ผลิตภัณฑ์ aldol addition รอบที่ 2',sl:'aldol 2',key:1,what:'ได้ (E)-5-hydroxy-1,5-diphenylpent-1-en-3-one ซึ่งเป็น β-hydroxy ketone ตัวใหม่ทางด้านซ้ายของโมเลกุล และ OH⁻ ถูกคืนกลับ'},names:['(E)-5-hydroxy-1,5-diphenylpent-1-en-3-one','aldol รอบที่ 2']},
+  6:{o:{title:'dibenzylideneacetone (dba)',sl:'dba',what:'ได้ (1E,4E)-1,5-diphenylpenta-1,4-dien-3-one ระบบ conjugate ยาวตลอดทั้งโมเลกุลทำให้ดูดกลืนแสงที่มองเห็นได้ จึงเป็นของแข็งสีเหลือง ใช้เป็นลิแกนด์ในสารประกอบแพลเลเดียม เช่น Pd₂(dba)₃',next:'<b>ในห้องปฏิบัติการ</b> dba ละลายได้น้อยในเอทานอลกับน้ำ จึงตกตะกอนออกมาระหว่างปฏิกิริยา ช่วยดึงสมดุลไปทางผลิตภัณฑ์'},names:['(1E,4E)-1,5-diphenylpenta-1,4-dien-3-one','dibenzylideneacetone (dba)']},
+};
+const R2ACID={
+  0:{o:{title:'รอบที่ 2: สารตั้งต้น',what:'benzalacetone ยังมีหมู่ CH₃ อีกข้างที่มี α-H เมื่อใช้ benzaldehyde 2 เท่าโมลขึ้นไป ด้านนี้จะเกิด aldol ซ้ำผ่าน enol ด้วยกลไกเดิมทุกขั้น'},names:['benzalacetone','benzaldehyde โมเลกุลที่ 2']},
+  5:{o:{title:'ผลิตภัณฑ์ aldol addition รอบที่ 2',sl:'aldol 2',key:1,what:'ได้ (E)-5-hydroxy-1,5-diphenylpent-1-en-3-one และ H₃O⁺ ถูกคืนกลับ'},names:['(E)-5-hydroxy-1,5-diphenylpent-1-en-3-one','aldol รอบที่ 2']},
+  11:{o:{title:'dibenzylideneacetone (dba)',sl:'dba',what:'ได้ (1E,4E)-1,5-diphenylpenta-1,4-dien-3-one ระบบ conjugate ยาวตลอดทั้งโมเลกุลทำให้เป็นของแข็งสีเหลือง ใช้เป็นลิแกนด์ในสารประกอบแพลเลเดียม เช่น Pd₂(dba)₃',next:'<b>เทียบกับเบส</b> ได้ผลิตภัณฑ์เดียวกัน แต่ทุกขั้นผ่าน enol และสปีชีส์ที่มีประจุบวก'},names:['(1E,4E)-1,5-diphenylpenta-1,4-dien-3-one','dibenzylideneacetone (dba)']},
+};
+const ROUND2={base:BASE.map((s,i)=>mirror(s,i,BASE.length-1,R2BASE[i]||{})), acid:ACID.map((s,i)=>mirror(s,i,ACID.length-1,R2ACID[i]||{}))};
+
+// ================= helpers =================
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]], add=(a,b)=>[a[0]+b[0],a[1]+b[1]], mul=(a,k)=>[a[0]*k,a[1]*k];
+const len=a=>Math.hypot(a[0],a[1]), unit=a=>{const l=len(a)||1;return [a[0]/l,a[1]/l]}, perp=a=>[-a[1],a[0]];
+const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t], mid=(a,b)=>lerp(a,b,.5);
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const f1=n=>n.toFixed(1);
+const angDist=(a,b)=>{let d=Math.abs(a-b)%(2*Math.PI); return d>Math.PI?2*Math.PI-d:d;};
+
+function bondEnd(st,id,other,P){
+  const a=P[id], d=unit(sub(P[other],a)), A=def(st,id);
+  if(A.ring) return add(a,mul(d,RING_R));
+  const [rx,ry]=A.r; const r=1/Math.sqrt((d[0]*d[0])/(rx*rx)+(d[1]*d[1])/(ry*ry));
+  return add(a,mul(d,r+2));
+}
+function labelBox(A,p){ const [rx,ry]=A.r; const cx=A.anchor==='end'?p[0]-rx+10:A.anchor==='start'?p[0]+rx-10:p[0]; return {cx,cy:p[1],rx:rx+3,ry:ry+4}; }
+
+// ===== charges & arrows (computed once per state, from its static positions) =====
+function defaultLpAngle(ar,P){
+  if(ar.from.ang!==undefined) return ar.from.ang*Math.PI/180;
+  const a=P[ar.from.lp], b=P[ar.from.to]; return Math.atan2(b[1]-a[1],b[0]-a[0]);
+}
+function chargeAngle(st,P,id,lpAngs){
+  const occ=[...lpAngs];
+  for(const [a,b] of st.bonds){ if(a===id||b===id){ const o=a===id?b:a; occ.push(Math.atan2(P[o][1]-P[id][1],P[o][0]-P[id][0])); } }
+  const pref=-Math.PI/4; let best=pref,bs=-1e9;
+  for(let k=0;k<24;k++){const a=k*Math.PI/12; let m=Math.PI; for(const o of occ) m=Math.min(m,angDist(a,o)); const sc=Math.min(m,1.6)-0.25*angDist(a,pref); if(sc>bs){bs=sc;best=a;}}
+  return best;
+}
+function arrowGeom(st,ar,P,bend,ang){
+  let start;
+  if(ar.from.lp) start=add(P[ar.from.lp],[Math.cos(ang)*23,Math.sin(ang)*23]);
+  else start=mid(P[ar.from.bond[0]],P[ar.from.bond[1]]);
+  const end0 = ar.to.atom ? P[ar.to.atom] : mid(P[ar.to.bond[0]],P[ar.to.bond[1]]);
+  const d=sub(end0,start), L=Math.max(len(d),30);
+  const ctrl=add(mid(start,end0), mul(unit(perp(d)), bend*L*0.6+(bend>0?14:-14)));
+  const end = ar.to.atom ? add(end0,mul(unit(sub(ctrl,end0)),18)) : add(end0,mul(unit(sub(ctrl,end0)),4));
+  return {start,ctrl,end,ang};
+}
+const qpt=(g,t)=>{const a=lerp(g.start,g.ctrl,t), b=lerp(g.ctrl,g.end,t); return lerp(a,b,t);};
+function segDist(p,a,b){const ab=sub(b,a); const t=Math.max(0,Math.min(1,((p[0]-a[0])*ab[0]+(p[1]-a[1])*ab[1])/((ab[0]**2+ab[1]**2)||1))); return len(sub(p,add(a,mul(ab,t))));}
+
+function prepare(st){
+  if(st._ready) return; st._ready=true;
+  const P=st.pos;
+  // charge angles (using default lp directions)
+  st._cang={};
+  for(const id in st.chg){ const lps=st.arrows.filter(a=>a.from.lp===id).map(a=>defaultLpAngle(a,P)); st._cang[id]=chargeAngle(st,P,id,lps); }
+  // obstacles
+  const atoms=[], segs=[], rings=[], rects=[];
+  for(const id in P){
+    const A=def(st,id);
+    if(A.ring){ rings.push({id,c:P[id]}); continue; }
+    const bx=labelBox(A,P[id]);
+    atoms.push({id,p:P[id],box:bx,o:A.el==='O'});
+    if(st.chg[id]){ const a=st._cang[id]; atoms.push({id,p:add(P[id],[Math.cos(a)*19,Math.sin(a)*19]),box:{cx:P[id][0]+Math.cos(a)*19,cy:P[id][1]+Math.sin(a)*19,rx:8,ry:8}}); }
+  }
+  for(const [a,b] of st.bonds){ segs.push({k:[a,b],p:bondEnd(st,a,b,P),q:bondEnd(st,b,a,P)}); }
+  for(const n of st.names){ const w=n.t.length*(n.em?8:7.3); rects.push({x0:n.x-w/2-4,x1:n.x+w/2+4,y0:n.y-16,y1:n.y+6}); }
+  const prevPts=[];
+  st._routes=st.arrows.map(ar=>{
+    const baseAng = ar.from.lp ? defaultLpAngle(ar,P) : 0;
+    const angs = ar.from.lp && ar.from.ang===undefined ? [0,-0.4,0.4,-0.75,0.75] : [0];
+    let best=null,bc=1e9;
+    for(const da of angs){
+      for(let b=-2.0;b<=2.001;b+=0.1){
+        if(Math.abs(b)<0.2) continue;
+        const g=arrowGeom(st,ar,P,b,baseAng+da);
+        let hits=0;
+        for(let t=0.04;t<=0.97;t+=0.03){
+          const pt=qpt(g,t);
+          if(pt[0]<8||pt[0]>752||pt[1]<8||pt[1]>432){hits+=2;continue;}
+          for(const a of atoms){
+            const isSrc = a.id===ar.from.lp || (ar.from.bond&&ar.from.bond.includes(a.id));
+            const isTgt = a.id===ar.to.atom || (ar.to.bond&&ar.to.bond.includes(a.id));
+            if(isSrc&&t<0.3) continue; if(isTgt&&t>0.7) continue;
+            const pad = a.o?9:6;
+            const dx=(pt[0]-a.box.cx)/(a.box.rx+pad), dy=(pt[1]-a.box.cy)/(a.box.ry+pad);
+            if(dx*dx+dy*dy<1) hits++;
+            else if(a.o && len(sub(pt,a.p))<24) hits++;   // lone pairs ring
+          }
+          for(const s of segs){
+            const same=(k,x)=>x&&((k[0]===x[0]&&k[1]===x[1])||(k[0]===x[1]&&k[1]===x[0]));
+            if(t<0.25&&same(s.k,ar.from.bond)) continue;
+            if(t>0.75&&same(s.k,ar.to.bond)) continue;
+            if(t<0.12||t>0.9) continue;
+            if(segDist(pt,s.p,s.q)<7) hits++;
+          }
+          for(const r of rings) if(len(sub(pt,r.c))<RING_R+6) hits++;
+          for(const r of rects) if(pt[0]>r.x0&&pt[0]<r.x1&&pt[1]>r.y0&&pt[1]<r.y1) hits++;
+          for(const q of prevPts) if(len(sub(pt,q))<9) {hits++;break;}
+        }
+        const cost=hits*100+Math.abs(b-ar.bend)*3+Math.abs(b)*0.6+Math.abs(da)*4;
+        if(cost<bc){bc=cost;best=g;}
+      }
+    }
+    for(let t=0;t<=1;t+=0.05) prevPts.push(qpt(best,t));
+    return best;
+  });
+  // lp seeds
+  st._lpSeed={};
+  st.arrows.forEach((ar,i)=>{ if(ar.from.lp){ (st._lpSeed[ar.from.lp]=st._lpSeed[ar.from.lp]||[]).push(st._routes[i].ang); } });
+}
+
+function lonePairs(st,P,id){
+  const A=def(st,id); if(A.el!=='O') return [];
+  let bsum=0; const dirs=[];
+  for(const [a,b,o] of st.bonds){ if(a===id||b===id){ bsum+=o; const other=a===id?b:a; dirs.push(Math.atan2(P[other][1]-P[id][1],P[other][0]-P[id][0])); } }
+  const ch=st.chg[id]||0; const n=Math.round((6-ch-bsum)/2);
+  const chosen=[...(st._lpSeed[id]||[])];
+  const occ=[...dirs]; if(ch) occ.push(st._cang[id]);
+  while(chosen.length<n){
+    let best=0,bs=-1;
+    for(let k=0;k<72;k++){const a=k*Math.PI/36; let sc=Infinity; for(const o of occ) sc=Math.min(sc,angDist(a,o)); for(const o of chosen) sc=Math.min(sc,angDist(a,o)*0.9); if(sc>bs){bs=sc;best=a;}}
+    chosen.push(best);
+  }
+  return chosen.slice(0,n);
+}
+
+// ================= svg pieces =================
+function bondSVG(st,a,b,P,al1,al2){
+  const p=bondEnd(st,a,b,P), q=bondEnd(st,b,a,P);
+  const n=unit(perp(sub(q,p)));
+  if(al2>0.001){
+    const o=3.4*al2, p1=add(p,mul(n,o)), q1=add(q,mul(n,o)), p2=add(p,mul(n,-o)), q2=add(q,mul(n,-o));
+    return `<line class="bond" x1="${f1(p1[0])}" y1="${f1(p1[1])}" x2="${f1(q1[0])}" y2="${f1(q1[1])}" opacity="${al1}"/><line class="bond" x1="${f1(p2[0])}" y1="${f1(p2[1])}" x2="${f1(q2[0])}" y2="${f1(q2[1])}" opacity="${Math.min(al1,al2).toFixed(2)}"/>`;
+  }
+  return `<line class="bond" x1="${f1(p[0])}" y1="${f1(p[1])}" x2="${f1(q[0])}" y2="${f1(q[1])}" opacity="${al1}"/>`;
+}
+function ringSVG(c,toward){
+  const a0=Math.atan2(toward[1]-c[1],toward[0]-c[0]); const v=[];
+  for(let k=0;k<6;k++){const a=a0+k*Math.PI/3; v.push([c[0]+RING_R*Math.cos(a),c[1]+RING_R*Math.sin(a)]);}
+  let s=`<polygon class="ring" points="${v.map(p=>f1(p[0])+','+f1(p[1])).join(' ')}"/>`;
+  for(const k of [1,3,5]){const p=lerp(v[k],c,.2), q=lerp(v[(k+1)%6],c,.2), pp=lerp(p,q,.12), qq=lerp(p,q,.88);
+    s+=`<line class="bond" x1="${f1(pp[0])}" y1="${f1(pp[1])}" x2="${f1(qq[0])}" y2="${f1(qq[1])}"/>`;}
+  return s;
+}
+function atomSVG(A,p,charge,cang){
+  const bx=labelBox(A,p);
+  let s=`<ellipse class="lbg" cx="${f1(bx.cx)}" cy="${f1(bx.cy)}" rx="${bx.rx}" ry="${bx.ry}"/>`;
+  s+=`<text class="atom ${A.el}" x="${f1(p[0]+(A.dx||0))}" y="${f1(p[1]+1)}" text-anchor="${A.anchor||'middle'}">${A.t}</text>`;
+  if(charge){
+    const c=[p[0]+Math.cos(cang)*19,p[1]+Math.sin(cang)*19];
+    s+=`<circle class="chg" cx="${f1(c[0])}" cy="${f1(c[1])}" r="6.8"/><line class="chgm" x1="${f1(c[0]-3.6)}" y1="${f1(c[1])}" x2="${f1(c[0]+3.6)}" y2="${f1(c[1])}"/>`;
+    if(charge>0) s+=`<line class="chgm" x1="${f1(c[0])}" y1="${f1(c[1]-3.6)}" x2="${f1(c[0])}" y2="${f1(c[1]+3.6)}"/>`;
+  }
+  return s;
+}
+function lpSVG(p,angles){
+  let s='';
+  for(const a of angles){const c=add(p,[Math.cos(a)*17,Math.sin(a)*17]), t=[-Math.sin(a)*3.6,Math.cos(a)*3.6], d1=add(c,t), d2=sub(c,t);
+    s+=`<circle class="lp" cx="${f1(d1[0])}" cy="${f1(d1[1])}" r="2.3"/><circle class="lp" cx="${f1(d2[0])}" cy="${f1(d2[1])}" r="2.3"/>`;}
+  return s;
+}
+function arrowSVG(g,alpha){
+  const dir=unit(sub(g.end,g.ctrl)), n=perp(dir), tip=add(g.end,mul(dir,2)), back=sub(tip,mul(dir,11));
+  const l=add(back,mul(n,5)), r=sub(back,mul(n,5)), e=sub(g.end,mul(dir,6));
+  return `<g opacity="${alpha}"><path class="arw" d="M${f1(g.start[0])},${f1(g.start[1])} Q${f1(g.ctrl[0])},${f1(g.ctrl[1])} ${f1(e[0])},${f1(e[1])}"/><polygon class="ahead" points="${f1(tip[0])},${f1(tip[1])} ${f1(l[0])},${f1(l[1])} ${f1(r[0])},${f1(r[1])}"/></g>`;
+}
+function namesSVG(st,alpha){
+  return st.names.map(n=>{
+    const w=n.t.length*(n.em?8:7.3); const x=Math.max(w/2+8,Math.min(752-w/2,n.x));
+    return `<text class="name${n.em?' em':''}" x="${x}" y="${n.y}" opacity="${alpha}">${n.t}</text>`;}).join('');
+}
+
+// one static or morphing frame
+const key=(a,b)=>a<b?a+'|'+b:b+'|'+a;
+function frameSVG(A,Bst,u,showArrows,flowT){
+  // A -> Bst morph with u in [0,1]; Bst may equal A
+  const P={}; for(const k in A.pos) P[k]=u>0?lerp(A.pos[k],Bst.pos[k],u):A.pos[k];
+  let s='';
+  const mA=new Map(A.bonds.map(([a,b,o])=>[key(a,b),o])), mB=new Map(Bst.bonds.map(([a,b,o])=>[key(a,b),o]));
+  const keys=new Set([...mA.keys(),...(u>0?mB.keys():[])]);
+  const cs = u>0.5?Bst:A;
+  for(const k of keys){
+    const [a,b]=k.split('|'); const o1=mA.get(k)||0, o2=u>0?(mB.get(k)||0):o1;
+    const al1=(o1>0&&o2>0)?1:(o1>0?1-u:u), al2=(o1>=2?1-u:0)+(o2>=2?u:0);
+    if(al1<0.01) continue;
+    s+=bondSVG(cs,a,b,P,al1.toFixed(2),al2);
+  }
+  for(const id in P){ const D=ATOMS[id]; if(D.ring) s+=ringSVG(P[id],P[D.ring]); }
+  for(const id in P){ const D=def(cs,id); if(!D.ring) s+=atomSVG(D,P[id],cs.chg[id],cs._cang[id]); }
+  if(showLp){
+    const al = u>0 ? Math.abs(u-0.5)*2 : 1; let l='';
+    for(const id in P) if(ATOMS[id].el==='O') l+=lpSVG(P[id],lonePairs(cs,P,id));
+    s+=`<g opacity="${al.toFixed(2)}">${l}</g>`;
+  }
+  if(showArrows>0){
+    A._routes.forEach(g=>{
+      s+=arrowSVG(g,showArrows.toFixed(2));
+      if(flowT>=0){ const e=ease(Math.min(1,flowT)); for(const off of [0,0.06]){const p=qpt(g,Math.max(0,e-off)); s+=`<circle class="edot" cx="${f1(p[0])}" cy="${f1(p[1])}" r="4.2"/>`;} }
+    });
+  }
+  return s;
+}
+
+// ================= sequence & rendering =================
+const svg=document.getElementById('mol');
+let showLp=true, mech='base', dba=false, SEQ=[];
+function buildSeq(){
+  SEQ = mech==='base' ? BASE.slice() : ACID.slice();
+  if(dba) SEQ=SEQ.concat(ROUND2[mech]);
+  SEQ.forEach(prepare);
+  buildEnergy();
+}
+function render(iA,iB,t){
+  const A=SEQ[iA], Bs=SEQ[iB], TA=0.45;
+  if(iA===iB){ svg.innerHTML=frameSVG(A,A,0,1,-1)+namesSVG(A,1); drawEnergy(iA,iA,0); return; }
+  if(Bs.fade){ // crossfade into the next round
+    const u=ease(t);
+    svg.innerHTML=`<g opacity="${(1-u).toFixed(2)}">${frameSVG(A,A,0,0,-1)}${namesSVG(A,1)}</g><g opacity="${u.toFixed(2)}">${frameSVG(Bs,Bs,0,0,-1)}${namesSVG(Bs,1)}</g>`;
+    drawEnergy(iA,iB,u); return;
+  }
+  if(t<TA){ svg.innerHTML=frameSVG(A,A,0,1,t/TA)+namesSVG(A,1); drawEnergy(iA,iB,0); return; }
+  const u=ease((t-TA)/(1-TA));
+  let s=frameSVG(A,Bs,u,u<0.25?1-u/0.25:0,-1);
+  if(u<0.25) s+=namesSVG(A,(1-u/0.25).toFixed(2)); else if(u>0.8) s+=namesSVG(Bs,((u-0.8)/0.2).toFixed(2));
+  svg.innerHTML=s; drawEnergy(iA,iB,u);
+}
+
+// ================= energy diagram =================
+const eng=document.getElementById('eng');
+let stages=[], stageOf=[], keyPts=[], eMin=0, eMax=1, engPath='';
+const ex0=110, ex1=1060, ey0=50, ey1=180;
+function buildEnergy(){
+  stages=[]; stageOf=[];
+  SEQ.forEach((s,i)=>{ if(i===0||!s.same) stages.push({E:s.E,sl:s.sl,key:!!s.key,phase:s.phase}); stageOf.push(stages.length-1); });
+  keyPts=[]; stages.forEach((g,i)=>{ keyPts.push(g.E); if(i<stages.length-1) keyPts.push(Math.max(g.E,stages[i+1].E)+5); });
+  eMin=Math.min(...keyPts); eMax=Math.max(...keyPts);
+  const pts=[]; for(let x=ex0;x<=ex1;x+=3) pts.push(`${x.toFixed(0)},${ey(engAt(x)).toFixed(1)}`); engPath='M'+pts.join(' L');
+}
+const kx=i=>ex0+(ex1-ex0)*i/Math.max(1,keyPts.length-1);
+const ey=v=>ey1-(v-eMin)/((eMax-eMin)||1)*(ey1-ey0);
+function engAt(x){
+  const f=(x-ex0)/(ex1-ex0)*(keyPts.length-1);
+  const i=Math.max(0,Math.min(keyPts.length-2,Math.floor(f))), t=f-i, c=(1-Math.cos(Math.PI*t))/2;
+  return keyPts[i]+(keyPts[i+1]-keyPts[i])*c;
+}
+const PHN={add1:'addition',cond1:'condensation',add2:'addition รอบ 2',cond2:'condensation รอบ 2'};
+function drawEnergy(iA,iB,u){
+  const sa=stageOf[iA], sb=stageOf[iB], x=kx(sa*2)+(kx(sb*2)-kx(sa*2))*u, active=u>0.5?sb:sa;
+  let s=`<line class="eaxis" x1="${ex0-40}" y1="${ey0-20}" x2="${ex0-40}" y2="${ey1+10}"/>`;
+  s+=`<text class="elab" x="${ex0-58}" y="${(ey0+ey1)/2}" transform="rotate(-90 ${ex0-58} ${(ey0+ey1)/2})">พลังงาน</text>`;
+  // phase segments
+  let segStart=0;
+  for(let i=1;i<=stages.length;i++){
+    if(i===stages.length||stages[i].phase!==stages[segStart].phase){
+      const xa=segStart===0?ex0:(kx(segStart*2)+kx(segStart*2-2))/2, xb=i===stages.length?ex1:(kx(i*2)+kx(i*2-2))/2;
+      const ph=stages[segStart].phase, col=ph.startsWith('add')?'var(--add)':'var(--cond)';
+      s+=`<text class="elab" x="${(xa+xb)/2}" y="18" style="fill:${col};font-weight:600">${PHN[ph]}</text>`;
+      if(i<stages.length) s+=`<line class="eaxis" x1="${xb}" y1="8" x2="${xb}" y2="${ey1+30}" stroke-dasharray="4 5"/>`;
+      segStart=i;
+    }
+  }
+  s+=`<path class="eline" d="${engPath}"/>`;
+  stages.forEach((g,i)=>{
+    const gx=kx(i*2), gy=ey(g.E);
+    s+=`<circle class="etick" cx="${gx}" cy="${gy}" r="2.5"/>`;
+    if(g.key||i===active) s+=`<text class="elab${i===active?' on':''}" x="${Math.max(ex0,Math.min(ex1-20,gx))}" y="${Math.min(gy+26,232)}">${g.sl}</text>`;
+  });
+  s+=`<circle class="emark" cx="${x.toFixed(1)}" cy="${ey(engAt(x)).toFixed(1)}" r="8"/>`;
+  eng.innerHTML=s;
+}
+
+// ================= UI =================
+let cur=0, anim=null, playing=false, playTimer=null;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR=reduce?1:2600;
+const $=id=>document.getElementById(id);
+const PHT={add1:'Aldol addition',cond1:'Aldol condensation',add2:'รอบที่ 2: addition',cond2:'รอบที่ 2: condensation'};
+const PHH={add1:'Aldol addition',cond1:'Aldol condensation (ให้ความร้อน)',add2:'รอบที่ 2: aldol addition',cond2:'รอบที่ 2: aldol condensation'};
+
+function buildList(){
+  let h='', ph=null;
+  SEQ.forEach((s,i)=>{
+    if(s.phase!==ph){ if(ph) h+='</ol>'; h+=`<h3 class="${s.phase}">${PHH[s.phase]}</h3><ol>`; ph=s.phase; }
+    h+=`<li><button type="button" data-i="${i}"><span class="n">${i+1}</span><span>${s.title}</span></button></li>`;
+  });
+  $('steps').innerHTML=h+'</ol>';
+  $('steps').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stopPlay(); jump(+b.dataset.i);}));
+}
+function updateText(i){
+  const st=SEQ[i];
+  $('stTitle').textContent=st.title; $('stWhat').textContent=st.what; $('stNext').innerHTML=st.next;
+  const hint=$('stHint');
+  if(i===SEQ.length-1&&!dba){hint.hidden=false; hint.textContent='เปิดตัวเลือก “ต่อรอบที่ 2” ด้านบน เพื่อดูการเกิด dibenzylideneacetone';} else hint.hidden=true;
+  const ph=$('phase'); ph.className='phase '+st.phase; ph.textContent=PHT[st.phase];
+  $('mechTag').textContent= mech==='base'?'เร่งด้วยเบส':'เร่งด้วยกรด';
+  $('steps').querySelectorAll('button').forEach(b=>{ if(+b.dataset.i===i){b.setAttribute('aria-current','step'); b.scrollIntoView({block:'nearest'});} else b.removeAttribute('aria-current'); });
+  $('bPrev').disabled=i===0; $('bNext').disabled=i===SEQ.length-1;
+  $('counter').textContent=`${i+1} / ${SEQ.length}`;
+}
+function jump(i){ anim=null; cur=i; updateText(i); render(i,i,0); }
+function next(){ if(anim||cur>=SEQ.length-1) return; anim={from:cur,to:cur+1,t0:performance.now(),dur:SEQ[cur+1].fade?Math.max(1,DUR*0.5):DUR}; }
+function tick(now){
+  if(anim){
+    const t=(now-anim.t0)/anim.dur;
+    if(t>=1){ cur=anim.to; anim=null; updateText(cur); render(cur,cur,0);
+      if(playing){ if(cur<SEQ.length-1) playTimer=setTimeout(next,1800); else stopPlay(); } }
+    else render(anim.from,anim.to,t);
+  }
+  requestAnimationFrame(tick);
+}
+function stopPlay(){ playing=false; clearTimeout(playTimer); $('bPlay').textContent='เล่นต่อเนื่อง'; }
+$('bNext').addEventListener('click',()=>{stopPlay(); next();});
+$('bPrev').addEventListener('click',()=>{stopPlay(); if(cur>0) jump(cur-1);});
+$('bReset').addEventListener('click',()=>{stopPlay(); jump(0);});
+$('bPlay').addEventListener('click',()=>{
+  if(playing){stopPlay();return;}
+  playing=true; $('bPlay').textContent='หยุด';
+  if(cur>=SEQ.length-1) jump(0);
+  next();
+});
+$('cLp').addEventListener('change',e=>{showLp=e.target.checked; if(!anim) render(cur,cur,0);});
+document.querySelectorAll('input[name=mech]').forEach(r=>r.addEventListener('change',e=>{
+  stopPlay(); mech=e.target.value; buildSeq(); buildList(); jump(0);
+}));
+$('cDba').addEventListener('change',e=>{
+  stopPlay(); dba=e.target.checked; buildSeq(); buildList(); jump(Math.min(cur,SEQ.length-1));
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowRight'){stopPlay();next();}
+  if(e.key==='ArrowLeft'){stopPlay(); if(!anim&&cur>0) jump(cur-1);}
+});
+buildSeq(); buildList(); jump(0); requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
